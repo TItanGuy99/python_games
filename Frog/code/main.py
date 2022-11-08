@@ -45,6 +45,15 @@ car_timer = pygame.event.custom_type()
 pygame.time.set_timer(car_timer, 80)
 pos_list = []
 
+# font
+font = pygame.font.Font(None, 50)
+text_surf = font.render('Você venceu!!!', True, 'White')
+text_rect = text_surf.get_rect(center = (WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2))
+
+# music
+music = pygame.mixer.Sound('../audio/music.mp3')
+music.play(loops = -1)
+
 # sprite setup
 for file_name, pos_list in SIMPLE_OBJECTS.items():
     path = f'../graphics/objects/simple/{file_name}.png'
@@ -81,12 +90,16 @@ while True:
     # delta time
     dt = clock.tick() / 1000
 
-    #update
-    all_sprites.update(dt)
+    if player.pos.y >= 1180:
+        #update
+        all_sprites.update(dt)
 
-    # draw
-    #all_sprites.draw(display_surface)
-    all_sprites.customize_draw()
+        # draw
+        #all_sprites.draw(display_surface)
+        all_sprites.customize_draw()
+    else:
+        display_surface.fill('teal')
+        display_surface.blit(text_surf,text_rect)
 
     # update the display surface -> drawing the frame
     pygame.display.update()

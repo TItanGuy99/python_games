@@ -22,11 +22,15 @@ class Car(pygame.sprite.Sprite):
             self.direction = pygame.math.Vector2(-1,0)
             self.image = pygame.transform.flip(self.image, True, False)
 
-        self.speed = 200
+        self.speed = 300
+
+        # collision
+        self.hitbox = self.rect.inflate(0, -self.rect.height / 2)
 
     def update(self, dt):
         self.pos += self.direction * self.speed * dt
-        self.rect.center = (round(self.pos.x), round(self.pos.y))
+        self.hitbox.center = (round(self.pos.x), round(self.pos.y))
+        self.rect.center = self.hitbox.center
 
         if not -200 < self.rect.x < 3400:
             self.kill()
