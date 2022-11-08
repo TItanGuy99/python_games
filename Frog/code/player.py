@@ -2,7 +2,7 @@ import pygame
 from os import walk
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, pos, groups):
+    def __init__(self, pos, groups, collision_sprites):
         super().__init__(groups)
 
         self.import_assets()
@@ -16,6 +16,14 @@ class Player(pygame.sprite.Sprite):
         self.pos = pygame.math.Vector2(self.rect.center)
         self.direction = pygame.math.Vector2()
         self.speed = 200
+
+        # collisions
+        self.collision_sprites = collision_sprites
+
+    def collision(self):
+        for sprite in self.collision_sprites.sprites():
+            if sprite.rect.colliderect(self.rect):
+                print('collision')
 
     def import_assets(self):
         self.animations = {}
@@ -74,3 +82,4 @@ class Player(pygame.sprite.Sprite):
         self.input()
         self.move(dt)
         self.animate(dt)
+        self.collision()
