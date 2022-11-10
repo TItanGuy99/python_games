@@ -1,6 +1,25 @@
 import pygame, sys
+from pygame.math import Vector2 as vector
 from settings import *
 from player import Player
+
+class AllSprites(pygame.sprite.Group):
+	def __init__(self):
+		super().__init__()
+		self.offset = vector()
+		self.display_surface = pygame.display.get_surface()
+		self.bg = pygame.image.load('../graphics/other/bg.png').convert()
+
+	def custmomize_draw(self,player):
+		self.offset.x = player.rect.centerx - WINDOW_WIDTH / 2
+		self.offset.y = player.rect.centery - WINDOW_HEIGHT / 2
+
+		self.display_surface.blit(self.bg, -self.offset)
+
+		for sprite in self.sprites():
+			offset_rect = sprite.image.get_rect(center = sprite.rect.center)
+			offset_rect.center -= self.offset
+			self.display_surface.blit(sprite.image, offset_rect)
 
 class Game:
 	def __init__(self):
@@ -10,12 +29,12 @@ class Game:
 		self.clock = pygame.time.Clock()
 
 		# groups
-		self.all_sprites = pygame.sprite.Group()
+		self.all_sprites = AllSprites()
 
 		self.setup()
 
 	def setup(self):
-		Player((200,200), self.all_sprites, None, None)
+		self.player = Player((200,200), self.all_sprites, PATHS['player'], None)
 
 	def run(self):
 		while True:
@@ -31,7 +50,7 @@ class Game:
 
 			# draw groups
 			self.display_surface.fill('black')
-			self.all_sprites.draw(self.display_surface)
+			self.all_sprites.custmomize_draw(self.player)
 
 			pygame.display.update()
 
