@@ -4,6 +4,7 @@ from settings import *
 from player import Player
 from pytmx.util_pygame import load_pygame
 from sprite import Sprite, Bullet
+from monster import Coffin, Cactus
 
 class AllSprites(pygame.sprite.Group):
 	def __init__(self):
@@ -59,6 +60,18 @@ class Game:
 				path = PATHS['player'], 
 				collision_sprites = self.obstacles, 
 				create_bullet = self.create_bullet)
+			if obj.name == 'Coffin':
+				Coffin(pos = (obj.x,obj.y), 
+				groups = self.all_sprites, 
+				path = PATHS['coffin'], 
+				collision_sprites = self.obstacles,
+				player = self.player)
+			if obj.name == 'Cactus':
+				Cactus(pos = (obj.x,obj.y), 
+				groups = self.all_sprites, 
+				path = PATHS['cactus'], 
+				collision_sprites = self.obstacles,
+				player = self.player)				
 
 	def run(self):
 		while True:
