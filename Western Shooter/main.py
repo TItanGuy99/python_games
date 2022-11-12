@@ -11,7 +11,7 @@ class AllSprites(pygame.sprite.Group):
 		super().__init__()
 		self.offset = vector()
 		self.display_surface = pygame.display.get_surface()
-		self.bg = pygame.image.load('../graphics/other/bg.png').convert()
+		self.bg = pygame.image.load('gameData/graphics/other/bg.png').convert()
 
 	def custmomize_draw(self,player):
 		self.offset.x = player.rect.centerx - WINDOW_WIDTH / 2
@@ -30,7 +30,7 @@ class Game:
 		self.display_surface = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 		pygame.display.set_caption('Western shooter')
 		self.clock = pygame.time.Clock()
-		self.bullet_surf = pygame.image.load('../graphics/other/particle.png').convert_alpha()
+		self.bullet_surf = pygame.image.load('gameData/graphics/other/particle.png').convert_alpha()
 
 		# groups
 		self.all_sprites = AllSprites()
@@ -39,7 +39,7 @@ class Game:
 		self.monsters = pygame.sprite.Group()
 
 		self.setup()
-		self.music = pygame.mixer.Sound('../sound/music.mp3')
+		self.music = pygame.mixer.Sound('gameData/sound/music.mp3')
 		self.music.play(loops = -1)
 
 	def create_bullet(self, pos, direction):
@@ -64,7 +64,7 @@ class Game:
 			self.player.damage()
 
 	def setup(self):
-		tmx_map = load_pygame('../data/map.tmx')
+		tmx_map = load_pygame('gameData/data/map.tmx')
 
 		# tiles
 		for x, y, surf in tmx_map.get_layer_by_name('Fence').tiles():
