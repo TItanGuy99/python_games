@@ -1,4 +1,4 @@
-import pygame
+import pygame, sys
 from pygame.math import Vector2 as vector
 from entity import Entity
 
@@ -59,6 +59,7 @@ class Player(Entity):
             bullet_start_pos = self.rect.center + self.bullet_direction * 80
             self.create_bullet(bullet_start_pos, self.bullet_direction)
             self.bullet_shot = True
+            self.shoot_sound.play()
 
         if self.frame_index >= len(current_animation):
             self.frame_index = 0
@@ -66,9 +67,19 @@ class Player(Entity):
                 self.attacking = False
 
         self.image = current_animation[int(self.frame_index)]
+        self.mask = pygame.mask.from_surface(self.image)
+
+    def check_death(self):
+        if self.health <= 0:
+            pygame.quit()
+            sys.exit()
 
     def update(self,dt):
         self.input()
         self.get_status()
         self.move(dt)
         self.animate(dt)
+        self.blink()
+
+        self.vulnerability_timer()
+        self.check_death()
