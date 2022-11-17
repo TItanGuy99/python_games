@@ -1,7 +1,7 @@
 import pygame, sys
 from settings import * 
 from pytmx.util_pygame import load_pygame
-from tile import Tile
+from tile import Tile, CollisionTile
 from player import Player
 from pygame.math import Vector2 as vector
 
@@ -33,18 +33,18 @@ class Main:
 
 		# groups 
 		self.all_sprites = AllSprites()
+		self.collision_sprites = pygame.sprite.Group()
 
 		self.setup()
 
 	def setup(self):
 		tmx_map = load_pygame('../data/map.tmx')
 		
-		# tiles 
+		# collision tiles 
 		for x,y, surf in tmx_map.get_layer_by_name('Level').tiles():
-			Tile((x * 64,y * 64), surf, self.all_sprites, LAYERS['Level'])
+			CollisionTile((x * 64,y * 64), surf, [self.all_sprites, self.collision_sprites])
 		
-		# exercise: 
-		# 4 more layers we need to import: BG, BG Detail, FG Detail Bottom, FG Detail Top
+		# tiles
 		for layer in ['BG', 'BG Detail', 'FG Detail Bottom', 'FG Detail Top']:
 			for x,y, surf in tmx_map.get_layer_by_name(layer).tiles():
 				Tile((x * 64,y * 64), surf, self.all_sprites, LAYERS[layer])
@@ -53,7 +53,7 @@ class Main:
 		# objects
 		for obj in tmx_map.get_layer_by_name('Entities'):
 			if obj.name == 'Player':
-				self.player = Player((obj.x,obj.y), self.all_sprites, '../graphics/player')
+				self.player = Player((obj.x,obj.y), self.all_sprites, '../graphics/player', self.collision_sprites)
 
 	def run(self):
 		while True:
