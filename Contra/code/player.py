@@ -4,7 +4,7 @@ from pygame.math import Vector2 as vector
 from os import walk
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, pos, groups, path, collision_sprites):
+    def __init__(self, pos, groups, path, collision_sprites, shoot):
         super().__init__(groups)
         self.import_assets(path)
         self.frame_index = 0
@@ -29,6 +29,19 @@ class Player(pygame.sprite.Sprite):
         self.on_floor = False
         self.duck = False
         self.moving_floor = None
+
+        # interaction
+        self.shoot = shoot
+
+        self.can_shoot = True
+        self.shoot_time = None
+        self.cooldown = 200
+
+    def shoot_timer(self):
+        if not self.can_shoot:
+            current_time = pygame.time.get_ticks()
+            if current_time -self.shoot_time > self.cooldown:
+                self.can_shoot = True
 
     def get_status(self):
         # idle
@@ -93,6 +106,15 @@ class Player(pygame.sprite.Sprite):
         else:
             self.duck = False
 
+        if keys[pygame.K_SPACE] and self.can_shoot:
+            direction = vector(1,0) if self.status.split('_')[0] == 'right' else vector(-1,0)
+            pos = self.rect.center + direction * 60
+            y_offset = vector(0, -16) if not self.duck else vector(0, 10)
+            self.shoot(pos + y_offset, direction, self)
+
+            self.can_shoot = False
+            self.shoot_time = pygame.time.get_ticks()
+
     def collision(self, direction):
         for sprite in self.collision_sprites.sprites():
             if sprite.rect.colliderect(self.rect):
@@ -150,3 +172,5 @@ class Player(pygame.sprite.Sprite):
         self.move(dt)
         self.check_contact()
         self.animate(dt)
+
+        self.shoot_timer()
