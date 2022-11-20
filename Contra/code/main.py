@@ -4,7 +4,7 @@ from pytmx.util_pygame import load_pygame
 from tile import Tile, CollisionTile, MovingPlatform
 from player import Player
 from pygame.math import Vector2 as vector
-from bullet import Bullet
+from bullet import Bullet, FireAnimation
 
 class AllSprites(pygame.sprite.Group):
 	def __init__(self):
@@ -12,11 +12,27 @@ class AllSprites(pygame.sprite.Group):
 		self.display_surface = pygame.display.get_surface()
 		self.offset = vector()
 
+		# import
+		self.fg_sky = pygame.image.load('../graphics/sky/fg_sky.png').convert_alpha()
+		self.bg_sky = pygame.image.load('../graphics/sky/bg_sky.png').convert_alpha()
+		tmx_map = load_pygame('../data/map.tmx')
+		
+		# dimensions
+		self.padding = WINDOW_WIDTH / 2
+		self.sky_width = self.bg_sky.get_width()
+		map_width = tmx_map.tilewidth * tmx_map.width + (2 * self.padding)
+		self.sky_num = int(map_width // self.sky_width)
+
 	def custom_draw(self,player):
 
 		# change the offset vector
 		self.offset.x = player.rect.centerx - WINDOW_WIDTH / 2
 		self.offset.y = player.rect.centery - WINDOW_HEIGHT / 2
+
+		for x in range(self.sky_num):
+			x_pos = -self.padding + (x * self.sky_width)
+			self.display_surface.blit(self.bg_sky, (x_pos - self.offset.x / 2.5, 850 - self.offset.y / 2.5))
+			self.display_surface.blit(self.fg_sky, (x_pos - self.offset.x / 2, 850 - self.offset.y / 2))
 
 		# blit all sprites
 		for sprite in sorted(self.sprites(), key = lambda sprite: sprite.z):
@@ -42,6 +58,9 @@ class Main:
 
 		# bullet images
 		self.bullet_surf = pygame.image.load('../graphics/bullet.png').convert_alpha()
+		self.fire_surfs = [
+			pygame.image.load('../graphics/fire/0.png').convert_alpha(), 
+			pygame.image.load('../graphics/fire/1.png').convert_alpha()]
 
 	def setup(self):
 		tmx_map = load_pygame('../data/map.tmx')
@@ -93,6 +112,7 @@ class Main:
 
 	def shoot(self, pos, direction, entity):
 		Bullet(pos, self.bullet_surf, direction, [self.all_sprites, self.bullet_sprites])
+		FireAnimation(entity, self.fire_surfs, direction, self.all_sprites)
 
 	def run(self):
 		while True:
