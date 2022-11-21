@@ -19,6 +19,7 @@ class Bullet(pygame.sprite.Sprite):
         self.pos = vector(self.rect.center)
 
         self.start_time = pygame.time.get_ticks()
+        self.mask = pygame.mask.from_surface(self.image)
 
     def update(self, dt):
         self.pos += self.direction * self.speed * dt
@@ -41,7 +42,7 @@ class FireAnimation(pygame.sprite.Sprite):
         self.image = self.frames[self.frame_index]
 
         # offset
-        x_offset = 60 if direction.x > 0 else -60
+        x_offset = 80 if direction.x > 0 else -80
         y_offset = 10 if entity.duck else -16
         self.offset = vector(x_offset,y_offset)
 

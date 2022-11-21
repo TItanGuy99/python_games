@@ -5,6 +5,8 @@ from tile import Tile, CollisionTile, MovingPlatform
 from player import Player
 from pygame.math import Vector2 as vector
 from bullet import Bullet, FireAnimation
+from enemy import Enemy
+from overlay import Overlay
 
 class AllSprites(pygame.sprite.Group):
 	def __init__(self):
@@ -53,14 +55,20 @@ class Main:
 		self.collision_sprites = pygame.sprite.Group()
 		self.platform_sprites = pygame.sprite.Group()
 		self.bullet_sprites = pygame.sprite.Group()
+		self.vulnerable_sprites = pygame.sprite.Group()
 
 		self.setup()
+		self.overlay = Overlay(self.player)
 
 		# bullet images
 		self.bullet_surf = pygame.image.load('../graphics/bullet.png').convert_alpha()
 		self.fire_surfs = [
 			pygame.image.load('../graphics/fire/0.png').convert_alpha(), 
 			pygame.image.load('../graphics/fire/1.png').convert_alpha()]
+
+		# music
+		self.music = pygame.mixer.Sound('../audio/music.wav')
+		self.music.play(loops = -1)
 
 	def setup(self):
 		tmx_map = load_pygame('../data/map.tmx')
@@ -78,7 +86,20 @@ class Main:
 		# objects
 		for obj in tmx_map.get_layer_by_name('Entities'):
 			if obj.name == 'Player':
-				self.player = Player((obj.x,obj.y), self.all_sprites, '../graphics/player', self.collision_sprites, self.shoot)
+				self.player = Player(
+					pos = (obj.x,obj.y), 
+					groups = [self.all_sprites, self.vulnerable_sprites], 
+					path = '../graphics/player', 
+					collision_sprites = self.collision_sprites, 
+					shoot = self.shoot)
+			if obj.name == 'Enemy':
+				Enemy(
+					pos = (obj.x,obj.y), 
+					path = '../graphics/enemies/standard', 
+					groups = [self.all_sprites, self.vulnerable_sprites], 
+					shoot = self.shoot, 
+					player = self.player, 
+					collision_sprites = self.collision_sprites)
 
 		self.platform_border_rects = []
 		for obj in tmx_map.get_layer_by_name('Platforms'):
@@ -110,6 +131,10 @@ class Main:
 		for obstacle in self.collision_sprites.sprites():
 			pygame.sprite.spritecollide(obstacle, self.bullet_sprites, True)
 
+		for sprite in self.vulnerable_sprites.sprites():
+			if pygame.sprite.spritecollide(sprite, self.bullet_sprites, True, pygame.sprite.collide_mask):
+				sprite.damage()
+
 	def shoot(self, pos, direction, entity):
 		Bullet(pos, self.bullet_surf, direction, [self.all_sprites, self.bullet_sprites])
 		FireAnimation(entity, self.fire_surfs, direction, self.all_sprites)
@@ -129,6 +154,7 @@ class Main:
 			self.bullet_collisions()
 			# self.all_sprites.draw(self.display_surface)
 			self.all_sprites.custom_draw(self.player)
+			self.overlay.display()
 
 			pygame.display.update()
 
